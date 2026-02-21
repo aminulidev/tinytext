@@ -1,0 +1,49 @@
+{
+  "name": "tinytext",
+  "version": "1.0.0",
+  "description": "A modern, lightweight, feature-rich WYSIWYG rich text editor",
+  "author": "Antigravity",
+  "license": "MIT",
+  "keywords": [
+    "editor",
+    "rich-text",
+    "wysiwyg",
+    "contenteditable",
+    "typescript"
+  ],
+  "main": "dist/tinytext.cjs.js",
+  "module": "dist/tinytext.esm.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/tinytext.esm.js",
+      "require": "./dist/tinytext.cjs.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./dist/tinytext.css": "./dist/tinytext.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "dev": "rollup -c rollup.config.js -w",
+    "build": "rollup -c rollup.config.js",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^20.0.0",
+    "rollup": "^3.29.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.0"
+  }
+}

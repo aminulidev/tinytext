@@ -1,0 +1,739 @@
+/* ═══════════════════════════════════════════════════════════════
+   TinyText Editor — Main Stylesheet
+   Design: Modern glass-morphism, premium feel, dark mode ready
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── CSS Custom Properties ─────────────────────────────────────── */
+:root {
+  --tt-font: 'Inter', system-ui, -apple-system, sans-serif;
+  --tt-font-editor: 'Inter', Georgia, serif;
+  --tt-font-size: 15px;
+  --tt-line-height: 1.7;
+  --tt-radius: 10px;
+  --tt-radius-sm: 6px;
+  --tt-transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Colors — light mode */
+  --tt-bg: #ffffff;
+  --tt-surface: #f8f9fc;
+  --tt-surface-hover: #f0f1f6;
+  --tt-border: #e2e5ed;
+  --tt-border-focus: #6366f1;
+  --tt-text: #1a1d2e;
+  --tt-text-muted: #6b7280;
+  --tt-text-placeholder: #9ca3af;
+  --tt-toolbar-bg: #f8f9fc;
+  --tt-toolbar-border: #e2e5ed;
+  --tt-btn-hover: #ede9fe;
+  --tt-btn-active-bg: #6366f1;
+  --tt-btn-active-text: #ffffff;
+  --tt-btn-disabled: #d1d5db;
+  --tt-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --tt-shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --tt-focus-ring: 0 0 0 3px rgba(99,102,241,0.2);
+  --tt-accent: #6366f1;
+  --tt-accent-light: #ede9fe;
+  --tt-danger: #ef4444;
+  --tt-statusbar-bg: #f3f4f8;
+  --tt-code-bg: #f1f5f9;
+  --tt-blockquote-border: #6366f1;
+  --tt-table-border: #e2e5ed;
+  --tt-table-header: #f3f4f8;
+  --tt-modal-overlay-bg: rgba(15, 15, 30, 0.6);
+  --tt-modal-bg: #ffffff;
+}
+
+/* ── Dark Mode ───────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --tt-bg: #0f1117;
+  --tt-surface: #1a1d2e;
+  --tt-surface-hover: #252840;
+  --tt-border: #2a2e45;
+  --tt-border-focus: #818cf8;
+  --tt-text: #e4e7f0;
+  --tt-text-muted: #6b7280;
+  --tt-text-placeholder: #4b5563;
+  --tt-toolbar-bg: #13161f;
+  --tt-toolbar-border: #2a2e45;
+  --tt-btn-hover: #252840;
+  --tt-btn-active-bg: #6366f1;
+  --tt-btn-active-text: #ffffff;
+  --tt-btn-disabled: #374151;
+  --tt-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+  --tt-shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+  --tt-focus-ring: 0 0 0 3px rgba(129,140,248,0.25);
+  --tt-accent: #818cf8;
+  --tt-accent-light: #1e2038;
+  --tt-statusbar-bg: #13161f;
+  --tt-code-bg: #1e2333;
+  --tt-blockquote-border: #818cf8;
+  --tt-table-border: #2a2e45;
+  --tt-table-header: #1e2333;
+  --tt-modal-overlay-bg: rgba(5, 5, 15, 0.8);
+  --tt-modal-bg: #1a1d2e;
+}
+
+/* ── Root Container ──────────────────────────────────────────── */
+.tt-root {
+  font-family: var(--tt-font);
+}
+
+.tt-editor {
+  display: flex;
+  flex-direction: column;
+  background: var(--tt-bg);
+  border: 1.5px solid var(--tt-border);
+  border-radius: var(--tt-radius);
+  box-shadow: var(--tt-shadow);
+  overflow: hidden;
+  transition: box-shadow var(--tt-transition), border-color var(--tt-transition);
+  position: relative;
+}
+
+.tt-editor.tt-focused {
+  border-color: var(--tt-border-focus);
+  box-shadow: var(--tt-shadow), var(--tt-focus-ring);
+}
+
+.tt-editor.tt-readonly .tt-content {
+  background: var(--tt-surface);
+  cursor: not-allowed;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.tt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  background: var(--tt-toolbar-bg);
+  border-bottom: 1px solid var(--tt-toolbar-border);
+  user-select: none;
+}
+
+.tt-toolbar--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.tt-toolbar-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--tt-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ── Toolbar Buttons ──────────────────────────────────────────── */
+.tt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--tt-radius-sm);
+  background: transparent;
+  color: var(--tt-text);
+  cursor: pointer;
+  transition: background var(--tt-transition), color var(--tt-transition), transform 0.1s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tt-btn svg {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.tt-btn:hover:not(:disabled) {
+  background: var(--tt-btn-hover);
+  color: var(--tt-accent);
+}
+
+.tt-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.tt-btn--active {
+  background: var(--tt-btn-active-bg) !important;
+  color: var(--tt-btn-active-text) !important;
+}
+
+.tt-btn--disabled,
+.tt-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Tooltip via title */
+.tt-btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1d2e;
+  color: #fff;
+  font-size: 11px;
+  font-family: var(--tt-font);
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+  animation: tt-tooltip-in 0.15s ease;
+}
+
+@keyframes tt-tooltip-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Color Picker ─────────────────────────────────────────────── */
+.tt-color-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tt-color-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ── Editor Body ─────────────────────────────────────────────── */
+.tt-body {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  background: var(--tt-bg);
+}
+
+.tt-content {
+  min-height: 200px;
+  padding: 20px 24px;
+  font-family: var(--tt-font-editor);
+  font-size: var(--tt-font-size);
+  line-height: var(--tt-line-height);
+  color: var(--tt-text);
+  outline: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  caret-color: var(--tt-accent);
+}
+
+/* ── Placeholder ─────────────────────────────────────────────── */
+.tt-content.tt-empty:before {
+  content: attr(data-placeholder);
+  position: absolute;
+  color: var(--tt-text-placeholder);
+  pointer-events: none;
+  font-style: italic;
+}
+
+/* ── Content Typography ───────────────────────────────────────── */
+.tt-content h1, .tt-content h2, .tt-content h3,
+.tt-content h4, .tt-content h5, .tt-content h6 {
+  line-height: 1.3;
+  font-weight: 600;
+  margin: 1.25em 0 0.5em;
+  color: var(--tt-text);
+}
+
+.tt-content h1 { font-size: 2em;   }
+.tt-content h2 { font-size: 1.6em; }
+.tt-content h3 { font-size: 1.35em; }
+.tt-content h4 { font-size: 1.15em; }
+.tt-content h5 { font-size: 1em;   }
+.tt-content h6 { font-size: 0.9em; color: var(--tt-text-muted); }
+
+.tt-content p {
+  margin: 0 0 1em;
+}
+
+.tt-content a {
+  color: var(--tt-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--tt-transition);
+}
+
+.tt-content a:hover {
+  color: var(--tt-btn-active-bg);
+}
+
+.tt-content ul, .tt-content ol {
+  padding-left: 1.75em;
+  margin: 0.5em 0 1em;
+}
+
+.tt-content li {
+  margin: 0.25em 0;
+}
+
+.tt-content blockquote {
+  border-left: 4px solid var(--tt-blockquote-border);
+  margin: 1em 0;
+  padding: 0.5em 1.25em;
+  background: var(--tt-accent-light);
+  border-radius: 0 var(--tt-radius-sm) var(--tt-radius-sm) 0;
+  color: var(--tt-text-muted);
+  font-style: italic;
+}
+
+.tt-content pre {
+  background: var(--tt-code-bg);
+  border-radius: var(--tt-radius-sm);
+  padding: 1em 1.25em;
+  margin: 1em 0;
+  overflow-x: auto;
+  border: 1px solid var(--tt-border);
+}
+
+.tt-content pre code {
+  background: none !important;
+  padding: 0;
+  font-size: 0.875em;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+}
+
+.tt-content code {
+  background: var(--tt-code-bg);
+  border: 1px solid var(--tt-border);
+  padding: 0.15em 0.45em;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.875em;
+}
+
+.tt-content hr {
+  border: none;
+  border-top: 2px solid var(--tt-border);
+  margin: 1.5em 0;
+}
+
+.tt-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--tt-radius-sm);
+  box-shadow: var(--tt-shadow);
+  display: block;
+  margin: 0.5em 0;
+  cursor: pointer;
+}
+
+.tt-content img:hover {
+  box-shadow: var(--tt-shadow-lg);
+  outline: 2px solid var(--tt-accent);
+  outline-offset: 2px;
+}
+
+/* ── Table Styles ────────────────────────────────────────────── */
+.tt-content table,
+.tt-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.9em;
+}
+
+.tt-content table th,
+.tt-content table td,
+.tt-table th,
+.tt-table td {
+  border: 1px solid var(--tt-table-border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+  min-width: 60px;
+}
+
+.tt-content table th,
+.tt-table th {
+  background: var(--tt-table-header);
+  font-weight: 600;
+  color: var(--tt-text);
+}
+
+.tt-content table tr:hover td {
+  background: var(--tt-surface-hover);
+}
+
+/* ── Status Bar ──────────────────────────────────────────────── */
+.tt-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 16px;
+  background: var(--tt-statusbar-bg);
+  border-top: 1px solid var(--tt-border);
+  font-size: 11px;
+  color: var(--tt-text-muted);
+  font-family: var(--tt-font);
+}
+
+.tt-statusbar span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tt-mode-label {
+  margin-left: auto;
+  padding: 2px 8px;
+  background: var(--tt-accent-light);
+  color: var(--tt-accent);
+  border-radius: 99px;
+  font-weight: 500;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.tt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--tt-modal-overlay-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99000;
+  opacity: 0;
+  transition: opacity var(--tt-transition);
+  backdrop-filter: blur(4px);
+  padding: 16px;
+}
+
+.tt-modal-overlay--visible {
+  opacity: 1;
+}
+
+.tt-modal {
+  background: var(--tt-modal-bg);
+  border-radius: var(--tt-radius);
+  box-shadow: var(--tt-shadow-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: tt-modal-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tt-modal-in {
+  from { transform: scale(0.92) translateY(16px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.tt-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--tt-border);
+}
+
+.tt-modal-title {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--tt-text);
+  margin: 0;
+}
+
+.tt-modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--tt-text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: color var(--tt-transition);
+}
+
+.tt-modal-close:hover { color: var(--tt-danger); }
+
+.tt-modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tt-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--tt-border);
+}
+
+/* ── Form Elements ───────────────────────────────────────────── */
+.tt-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tt-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tt-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tt-label-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--tt-text);
+  cursor: pointer;
+}
+
+.tt-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--tt-border);
+  border-radius: var(--tt-radius-sm);
+  background: var(--tt-bg);
+  color: var(--tt-text);
+  font-family: var(--tt-font);
+  font-size: 14px;
+  transition: border-color var(--tt-transition), box-shadow var(--tt-transition);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.tt-input:focus {
+  border-color: var(--tt-border-focus);
+  box-shadow: var(--tt-focus-ring);
+}
+
+.tt-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--tt-accent);
+  cursor: pointer;
+}
+
+/* ── Buttons (modal) ─────────────────────────────────────────── */
+.tt-btn-primary {
+  padding: 9px 20px;
+  background: var(--tt-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--tt-radius-sm);
+  font-family: var(--tt-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--tt-transition), transform 0.1s;
+}
+
+.tt-btn-primary:hover  { background: #4f52d3; }
+.tt-btn-primary:active { transform: scale(0.97); }
+
+.tt-btn-secondary {
+  padding: 9px 20px;
+  background: var(--tt-surface);
+  color: var(--tt-text);
+  border: 1.5px solid var(--tt-border);
+  border-radius: var(--tt-radius-sm);
+  font-family: var(--tt-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--tt-transition);
+}
+
+.tt-btn-secondary:hover { background: var(--tt-surface-hover); }
+
+.tt-btn-danger {
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--tt-danger);
+  border: 1.5px solid var(--tt-danger);
+  border-radius: var(--tt-radius-sm);
+  font-family: var(--tt-font);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--tt-transition);
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.tt-btn-danger:hover { background: rgba(239,68,68,0.08); }
+
+/* ── Tabs (modal) ─────────────────────────────────────────────── */
+.tt-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--tt-border);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.tt-tab {
+  padding: 6px 16px;
+  border: 1.5px solid var(--tt-border);
+  border-radius: var(--tt-radius-sm);
+  background: var(--tt-surface);
+  color: var(--tt-text-muted);
+  font-family: var(--tt-font);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--tt-transition);
+}
+
+.tt-tab--active {
+  background: var(--tt-accent);
+  color: #fff;
+  border-color: var(--tt-accent);
+}
+
+.tt-tab-content { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── Drop Zone ────────────────────────────────────────────────── */
+.tt-dropzone {
+  border: 2px dashed var(--tt-border);
+  border-radius: var(--tt-radius-sm);
+  padding: 24px;
+  text-align: center;
+  color: var(--tt-text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--tt-transition);
+  position: relative;
+}
+
+.tt-dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.tt-dropzone--active {
+  border-color: var(--tt-accent);
+  background: var(--tt-accent-light);
+  color: var(--tt-accent);
+}
+
+/* ── Table Preview ────────────────────────────────────────────── */
+.tt-table-preview {
+  margin-top: 8px;
+  overflow: auto;
+}
+
+.tt-preview-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.tt-preview-table th,
+.tt-preview-table td {
+  border: 1px solid var(--tt-table-border);
+  padding: 4px 8px;
+  min-width: 40px;
+}
+
+.tt-preview-table th {
+  background: var(--tt-table-header);
+}
+
+/* ── Context Menu ─────────────────────────────────────────────── */
+.tt-context-menu {
+  background: var(--tt-modal-bg);
+  border: 1px solid var(--tt-border);
+  border-radius: var(--tt-radius-sm);
+  box-shadow: var(--tt-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  overflow: hidden;
+  animation: tt-ctx-in 0.12s ease;
+}
+
+@keyframes tt-ctx-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.tt-context-item {
+  padding: 9px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--tt-text);
+  font-family: var(--tt-font);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--tt-transition);
+}
+
+.tt-context-item:hover {
+  background: var(--tt-surface-hover);
+  color: var(--tt-accent);
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tt-toolbar {
+    gap: 1px;
+    padding: 4px 6px;
+  }
+
+  .tt-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .tt-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .tt-content {
+    padding: 14px 16px;
+  }
+
+  .tt-modal {
+    max-width: 100%;
+  }
+}
+
+/* ── Selection highlight ──────────────────────────────────────── */
+.tt-content ::selection {
+  background: rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .tt-content ::selection {
+  background: rgba(129, 140, 248, 0.25);
+}
+
+/* ── Scrollbar styling ────────────────────────────────────────── */
+.tt-body::-webkit-scrollbar { width: 6px; }
+.tt-body::-webkit-scrollbar-track { background: transparent; }
+.tt-body::-webkit-scrollbar-thumb {
+  background: var(--tt-border);
+  border-radius: 99px;
+}
+.tt-body::-webkit-scrollbar-thumb:hover {
+  background: var(--tt-text-muted);
+}

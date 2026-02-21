@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TinyText Editor — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d2e;
+      --border: #2a2e45;
+      --text: #e4e7f0;
+      --muted: #6b7280;
+      --accent: #6366f1;
+      --accent-light: rgba(99,102,241,0.12);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #0f1117 0%, #1a1d2e 50%, #13141f 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 48px 24px 36px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,0.18), transparent);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      background: var(--accent-light);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: #818cf8;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #e4e7f0 0%, #818cf8 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .header p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    .header-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 4px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Main Content ── */
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .editor-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    #editor {
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    button.demo-btn {
+      padding: 9px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+
+    button.demo-btn:hover {
+      background: var(--accent-light);
+      border-color: rgba(99,102,241,0.4);
+      color: #818cf8;
+    }
+
+    button.demo-btn.accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.demo-btn.accent:hover {
+      background: #4f52d3;
+    }
+
+    .output-area {
+      background: #0a0c15;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11.5px;
+      color: #818cf8;
+      max-height: 180px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #374151;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.15s;
+    }
+
+    input:checked + .slider { background: var(--accent); }
+    input:checked + .slider::before { transform: translateX(18px); }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .footer a { color: #818cf8; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="badge">✦ Open Source</div>
+  <h1>TinyText Editor</h1>
+  <p>A modern, lightweight, feature-rich WYSIWYG editor. Zero dependencies. Plugin-driven. Production-ready.</p>
+  <div class="header-pills">
+    <span class="pill">TypeScript</span>
+    <span class="pill">Vanilla JS</span>
+    <span class="pill">ContentEditable</span>
+    <span class="pill">Plugin System</span>
+    <span class="pill">Dark Mode</span>
+    <span class="pill">ESM + CJS</span>
+    <span class="pill">Tree-shakable</span>
+  </div>
+</header>
+
+<!-- Main Layout -->
+<div class="layout">
+
+  <!-- Editor Area -->
+  <div class="editor-wrapper">
+    <div class="section-label">Live Editor</div>
+    <div id="editor"></div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <!-- Controls -->
+    <div class="card">
+      <h3>🎛 Controls</h3>
+      <div class="btn-group">
+        <button class="demo-btn" onclick="toggleDark()">🌙 Toggle Dark Mode</button>
+        <button class="demo-btn" onclick="toggleReadOnly()">🔒 Toggle Read-Only</button>
+        <button class="demo-btn" onclick="clearEditor()">🗑 Clear Editor</button>
+        <button class="demo-btn" onclick="editor.undo()">↩ Undo</button>
+        <button class="demo-btn" onclick="editor.redo()">↪ Redo</button>
+      </div>
+    </div>
+
+    <!-- HTML Output -->
+    <div class="card">
+      <h3>📄 HTML Output</h3>
+      <div class="output-area" id="html-output">Click to refresh...</div>
+      <div class="btn-group" style="margin-top:10px">
+        <button class="demo-btn accent" onclick="showHtml()">Get HTML</button>
+        <button class="demo-btn" onclick="copyHtml()">📋 Copy HTML</button>
+      </div>
+    </div>
+
+    <!-- Set Content -->
+    <div class="card">
+      <h3>📝 Set Content</h3>
+      <div class="btn-group">
+        <button class="demo-btn" onclick="setDemoContent()">Load demo content</button>
+        <button class="demo-btn" onclick="setMinimalContent()">Load minimal content</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <h3>📊 Stats</h3>
+      <div id="stats" style="font-size:13px;color:#6b7280;line-height:2">
+        Words: —<br>Characters: —
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  Built with ❤️ by <a href="#">Antigravity</a> · MIT License · 
+  <a href="#">GitHub</a> · <a href="#">npm</a>
+</footer>
+
+<!-- Load built bundle (dev: use ES module import) -->
+<script type="module">
+  // In production: import { createEditor, TablePlugin, MarkdownPlugin } from 'tinytext';
+  // For this demo, we inline the logic:
+
+  import { TinyTextEditor, TablePlugin, MarkdownPlugin } from './dist/tinytext.esm.js';
+
+  const editor = new TinyTextEditor({
+    selector: '#editor',
+    darkMode: 'auto',
+    charCounter: true,
+    minHeight: '420px',
+    placeholder: 'Start writing something amazing...',
+    plugins: [TablePlugin, MarkdownPlugin],
+    toolbar: 'full',
+    autoSave: { interval: 30000, key: 'tinytext_demo' },
+    sanitize: true,
+    onChange(html, text) {
+      const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+      document.getElementById('stats').innerHTML =
+        `Words: <strong style="color:#818cf8">${words}</strong><br>` +
+        `Characters: <strong style="color:#818cf8">${text.replace(/\s/g,'').length}</strong>`;
+    },
+  });
+
+  // Make accessible globally for demo buttons
+  window.editor = editor;
+
+  window.toggleDark = () => editor.toggleDarkMode();
+  window.toggleReadOnly = () => editor.setReadOnly(!editor.isReadOnly());
+  window.clearEditor = () => editor.setHTML('');
+  window.showHtml = () => {
+    document.getElementById('html-output').textContent = editor.getHTML();
+  };
+  window.copyHtml = async () => {
+    await navigator.clipboard.writeText(editor.getHTML());
+    alert('HTML copied to clipboard!');
+  };
+  window.setDemoContent = () => {
+    editor.setHTML(`
+      <h1>Welcome to TinyText ✦</h1>
+      <p>A <strong>modern</strong>, <em>lightweight</em>, and fully <u>original</u> WYSIWYG editor.</p>
+      <h2>Features</h2>
+      <ul>
+        <li>Bold, Italic, Underline, Strikethrough</li>
+        <li>Headings H1–H6 with keyboard shortcuts</li>
+        <li>Lists, Blockquotes, Code Blocks</li>
+        <li>Link &amp; Image insertion with modals</li>
+        <li>Table support with context menu</li>
+        <li>Undo / Redo history</li>
+        <li>Plugin system &amp; custom toolbar</li>
+        <li>Dark mode &amp; custom themes</li>
+        <li>Auto-save to localStorage</li>
+      </ul>
+      <h2>Code Example</h2>
+      <pre><code>const editor = new TinyTextEditor({
+  selector: '#editor',
+  toolbar: 'full',
+  plugins: [TablePlugin],
+  placeholder: 'Start writing...',
+});
+
+editor.getHTML();
+editor.setHTML('&lt;p&gt;Hello world&lt;/p&gt;');</code></pre>
+      <blockquote>TinyText is fully original — no TinyMCE code. Built from scratch with clean architecture.</blockquote>
+    `);
+  };
+  window.setMinimalContent = () => {
+    editor.setHTML('<p>Hello, <strong>world</strong>!</p>');
+  };
+
+  // Load demo content on start
+  window.setDemoContent();
+</script>
+
+</body>
+</html>
