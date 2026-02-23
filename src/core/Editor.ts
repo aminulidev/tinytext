@@ -24,14 +24,20 @@ import type {
 const AUTOSAVE_DEFAULT_INTERVAL = 30_000; // 30s
 const AUTOSAVE_DEFAULT_KEY = 'tinytext_autosave';
 
-const FULL_TOOLBAR: ToolbarItem[] = [
-    'undo', 'redo', 'separator',
-    'bold', 'italic', 'underline', 'strikethrough', 'separator',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'paragraph', 'separator',
-    'align-left', 'align-center', 'align-right', 'align-justify', 'separator',
-    'unordered-list', 'ordered-list', 'blockquote', 'separator',
-    'code-block', 'link', 'image', 'table', 'separator',
-    'forecolor', 'hilitecolor',
+const FULL_TOOLBAR: ToolbarItem[][] = [
+    [
+        'undo', 'redo', 'print', 'separator',
+        'fontname', 'fontsize', 'separator',
+        'bold', 'italic', 'underline', 'separator',
+        'forecolor', 'hilitecolor',
+    ],
+    [
+        'align-left', 'align-center', 'align-right', 'align-justify', 'separator',
+        'unordered-list', 'ordered-list', 'outdent', 'indent', 'separator',
+        'link', 'image', 'separator',
+        'blockquote', 'separator',
+        'removeFormat',
+    ]
 ];
 
 const MINIMAL_TOOLBAR: ToolbarItem[] = [
@@ -47,6 +53,7 @@ export class TinyTextEditor implements EditorInstance {
     private readonly statusBar: HTMLElement;
     private readonly charCountEl: HTMLElement;
     private readonly wordCountEl: HTMLElement;
+    private readonly breadcrumbsEl: HTMLElement;
 
     // Core managers
     readonly events: EventBus;
@@ -84,7 +91,7 @@ export class TinyTextEditor implements EditorInstance {
         this.validator = new SchemaValidator();
 
         // Build DOM
-        const { container, editable, toolbarEl, statusBar, charCountEl, wordCountEl } =
+        const { container, editable, toolbarEl, statusBar, charCountEl, wordCountEl, breadcrumbsEl } =
             this._buildDOM();
         this.container = container;
         this.editable = editable;
@@ -92,6 +99,7 @@ export class TinyTextEditor implements EditorInstance {
         this.statusBar = statusBar;
         this.charCountEl = charCountEl;
         this.wordCountEl = wordCountEl;
+        this.breadcrumbsEl = breadcrumbsEl;
 
         // Re-init SelectionManager with actual root (prevents accessing private root)
         this.selection = new SelectionManager(this.editable);
@@ -198,10 +206,15 @@ export class TinyTextEditor implements EditorInstance {
         charCountEl.className = 'tt-charcount';
         charCountEl.textContent = '0 chars';
 
+        const breadcrumbsEl = document.createElement('div');
+        breadcrumbsEl.className = 'tt-breadcrumbs';
+        breadcrumbsEl.textContent = 'div';
+
         const modeLabel = document.createElement('span');
         modeLabel.className = 'tt-mode-label';
         modeLabel.textContent = this._markdownMode ? 'Markdown' : 'Rich Text';
 
+        statusBar.appendChild(breadcrumbsEl);
         statusBar.appendChild(wordCountEl);
         statusBar.appendChild(charCountEl);
         statusBar.appendChild(modeLabel);
@@ -211,12 +224,12 @@ export class TinyTextEditor implements EditorInstance {
         container.appendChild(statusBar);
         root.appendChild(container);
 
-        return { container, editable, toolbarEl, statusBar, charCountEl, wordCountEl };
+        return { container, editable, toolbarEl, statusBar, charCountEl, wordCountEl, breadcrumbsEl };
     }
 
     // ── Toolbar Init ───────────────────────────────────────────────
     private _initToolbar() {
-        let items: ToolbarItem[];
+        let items: ToolbarItem[] | ToolbarItem[][];
         const opt = this._options.toolbar;
 
         if (opt === 'full') items = FULL_TOOLBAR;
@@ -339,6 +352,7 @@ export class TinyTextEditor implements EditorInstance {
         if (!this.selection.isInsideEditor()) return;
         const sel = this.selection.getSelection();
         this.events.emit('selection-change', { selection: sel });
+        this._updateBreadcrumbs();
         this.toolbar.refresh();
     }
 
@@ -414,6 +428,21 @@ export class TinyTextEditor implements EditorInstance {
         const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
         this.charCountEl.textContent = `${chars} chars`;
         this.wordCountEl.textContent = `${words} words`;
+    }
+
+    private _updateBreadcrumbs() {
+        const path: string[] = [];
+        let curr: HTMLElement | null = this.selection.getAnchorNode() as HTMLElement;
+
+        while (curr && curr !== this.editable) {
+            if (curr.nodeType === Node.ELEMENT_NODE) {
+                path.unshift(curr.tagName.toLowerCase());
+            }
+            curr = curr.parentElement;
+        }
+
+        if (path.length === 0) path.push('div');
+        this.breadcrumbsEl.textContent = path.join(' > ');
     }
 
     private _updatePlaceholder() {

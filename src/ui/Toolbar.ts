@@ -4,6 +4,7 @@ import type { TinyTextEditor } from '../core/Editor';
 import { LinkModal } from './modals/LinkModal';
 import { ImageModal } from './modals/ImageModal';
 import { TableModal } from './modals/TableModal';
+import { Dropdown } from './components/Dropdown';
 
 // ── Icon SVG library ─────────────────────────────────────────────
 export const ICONS: Record<string, string> = {
@@ -33,6 +34,10 @@ export const ICONS: Record<string, string> = {
     redo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-1.85-4.92L23 10"/></svg>`,
     forecolor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4l10.5-10.5a2.121 2.121 0 00-3-3L5 17v3z"/><line x1="14" y1="5" x2="19" y2="10"/></svg>`,
     hilitecolor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 12.764L11.236 6 4 13.236V18h4.764L18 12.764z"/><line x1="20" y1="20" x2="4" y2="20"/></svg>`,
+    print: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+    indent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 14 12 9 7"/><line x1="3" y1="12" x2="14" y2="12"/><line x1="21" y1="18" x2="21" y2="6"/></svg>`,
+    outdent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 7 2 12 7 17"/><line x1="12" y1="12" x2="2" y2="12"/><line x1="21" y1="18" x2="21" y2="6"/></svg>`,
+    removeFormat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.41 10.58l5.3-5.3-1.42-1.42-5.3 5.3-5.3-5.3-1.42 1.42 5.3 5.3-5.3 5.3 1.42 1.42 5.3-5.3 5.3 5.3 1.42-1.42-5.3-5.3zM2 13v9h9"></path></svg>`,
 };
 
 // ── Button configs ────────────────────────────────────────────────
@@ -79,6 +84,10 @@ function buildDefaultButtons(
     btn('code-block', 'Code Block');
     btn('undo', 'Undo (Ctrl+Z)');
     btn('redo', 'Redo (Ctrl+Y)');
+    btn('print', 'Print (Ctrl+P)');
+    btn('indent', 'Indent');
+    btn('outdent', 'Outdent');
+    btn('removeFormat', 'Clear Formatting');
 
     // Link — opens modal
     map.set('link', {
@@ -134,22 +143,56 @@ function buildDefaultButtons(
         isEnabled: () => !editor.isReadOnly(),
     });
 
+    // Font Family dropdown
+    map.set('fontname', {
+        icon: '',
+        label: 'System Font',
+        type: 'dropdown',
+        command: 'fontname',
+        options: [
+            { label: 'System Font', value: 'Inter', action: () => editor.execCommand('fontname', 'Inter') },
+            { label: 'Serif', value: 'Georgia', action: () => editor.execCommand('fontname', 'Georgia') },
+            { label: 'Monospace', value: 'monospace', action: () => editor.execCommand('fontname', 'monospace') },
+            { label: 'Arial', value: 'Arial', action: () => editor.execCommand('fontname', 'Arial') },
+            { label: 'Comic Sans', value: 'Comic Sans MS', action: () => editor.execCommand('fontname', 'Comic Sans MS') },
+        ],
+        isEnabled: () => !editor.isReadOnly(),
+    });
+
+    // Font Size dropdown
+    map.set('fontsize', {
+        icon: '',
+        label: '12pt',
+        type: 'dropdown',
+        command: 'fontsize',
+        options: [
+            { label: '8pt', value: '1', action: () => editor.execCommand('fontsize', '1') },
+            { label: '10pt', value: '2', action: () => editor.execCommand('fontsize', '2') },
+            { label: '12pt', value: '3', action: () => editor.execCommand('fontsize', '3') },
+            { label: '14pt', value: '4', action: () => editor.execCommand('fontsize', '4') },
+            { label: '18pt', value: '5', action: () => editor.execCommand('fontsize', '5') },
+            { label: '24pt', value: '6', action: () => editor.execCommand('fontsize', '6') },
+            { label: '36pt', value: '7', action: () => editor.execCommand('fontsize', '7') },
+        ],
+        isEnabled: () => !editor.isReadOnly(),
+    });
+
     return map;
 }
 
 // ── Toolbar class ─────────────────────────────────────────────────
 export class Toolbar {
     private readonly el: HTMLElement;
-    private readonly items: ToolbarItem[];
+    private readonly items: ToolbarItem[] | ToolbarItem[][];
     private readonly commands: CommandManager;
     private readonly editor: TinyTextEditor;
-    private readonly buttonMap = new Map<string, HTMLElement>();
+    private readonly buttonMap = new Map<string, HTMLElement | Dropdown>();
     private readonly defaultButtons: Map<string, ToolbarButtonConfig>;
     private readonly customButtons = new Map<string, ToolbarButtonConfig>();
 
     constructor(
         el: HTMLElement,
-        items: ToolbarItem[],
+        items: ToolbarItem[] | ToolbarItem[][],
         commands: CommandManager,
         editor: TinyTextEditor,
     ) {
@@ -164,11 +207,27 @@ export class Toolbar {
         this.el.innerHTML = '';
         this.buttonMap.clear();
 
-        for (const item of this.items) {
+        const items = this.items;
+        if (Array.isArray(items[0])) {
+            // Multi-row
+            (items as ToolbarItem[][]).forEach((row, idx) => {
+                const rowEl = document.createElement('div');
+                rowEl.className = `tt-toolbar-row tt-toolbar-row--${idx}`;
+                this._renderRow(rowEl, row);
+                this.el.appendChild(rowEl);
+            });
+        } else {
+            // Single row
+            this._renderRow(this.el, items as ToolbarItem[]);
+        }
+    }
+
+    private _renderRow(container: HTMLElement, items: ToolbarItem[]): void {
+        for (const item of items) {
             if (item === 'separator') {
                 const sep = document.createElement('div');
                 sep.className = 'tt-toolbar-sep';
-                this.el.appendChild(sep);
+                container.appendChild(sep);
                 continue;
             }
 
@@ -176,14 +235,19 @@ export class Toolbar {
             if (!config) continue;
 
             const btn = this._buildButton(item, config);
-            this.el.appendChild(btn);
+            container.appendChild(btn instanceof Dropdown ? btn.getElement() : btn);
             this.buttonMap.set(item, btn);
         }
     }
 
-    private _buildButton(id: string, config: ToolbarButtonConfig): HTMLElement {
+    private _buildButton(id: string, config: ToolbarButtonConfig): HTMLElement | Dropdown {
         if (config.type === 'color') {
             return this._buildColorPicker(id, config);
+        }
+        if (config.type === 'dropdown') {
+            return new Dropdown(config, (val) => {
+                if (config.command) this.editor.execCommand(config.command, val);
+            });
         }
 
         const btn = document.createElement('button');
@@ -238,37 +302,60 @@ export class Toolbar {
     }
 
     refresh(): void {
-        for (const [id, btn] of this.buttonMap) {
+        for (const [id, item] of this.buttonMap) {
             const config = this.customButtons.get(id) ?? this.defaultButtons.get(id);
             if (!config) continue;
 
             const active = config.isActive ? config.isActive() : this.commands.isActive(id);
             const enabled = config.isEnabled ? config.isEnabled() : this.commands.isEnabled(id);
 
-            btn.classList.toggle('tt-btn--active', active);
-            btn.classList.toggle('tt-btn--disabled', !enabled);
-            (btn as HTMLButtonElement).disabled = !enabled;
+            if (item instanceof HTMLElement) {
+                item.classList.toggle('tt-btn--active', active);
+                item.classList.toggle('tt-btn--disabled', !enabled);
+                if (item instanceof HTMLButtonElement) item.disabled = !enabled;
+            } else if (item instanceof Dropdown) {
+                item.getElement().classList.toggle('tt-btn--disabled', !enabled);
+                // Dropdown specific refresh if needed
+            }
         }
     }
 
     addCustomButton(id: string, config: ToolbarButtonConfig): void {
         this.customButtons.set(id, config);
-        if (!this.items.includes(id)) {
-            this.items.push(id);
+        // Add to items list if not present (simple push to last row or single list)
+        if (Array.isArray(this.items[0])) {
+            const multi = this.items as string[][];
+            if (!multi.some(row => row.includes(id))) {
+                multi[multi.length - 1].push(id);
+            }
+        } else {
+            const single = this.items as string[];
+            if (!single.includes(id)) {
+                single.push(id);
+            }
         }
         const btn = this._buildButton(id, config);
-        this.el.appendChild(btn);
+        this.el.appendChild(btn instanceof Dropdown ? btn.getElement() : btn);
         this.buttonMap.set(id, btn);
     }
 
     removeButton(id: string): void {
-        const btn = this.buttonMap.get(id);
-        if (btn) {
-            btn.remove();
+        const item = this.buttonMap.get(id);
+        if (item) {
+            if (item instanceof HTMLElement) item.remove();
+            else item.getElement().remove();
             this.buttonMap.delete(id);
         }
         this.customButtons.delete(id);
-        const idx = this.items.indexOf(id);
-        if (idx !== -1) this.items.splice(idx, 1);
+
+        if (Array.isArray(this.items[0])) {
+            (this.items as string[][]).forEach(row => {
+                const idx = row.indexOf(id);
+                if (idx !== -1) row.splice(idx, 1);
+            });
+        } else {
+            const idx = (this.items as string[]).indexOf(id);
+            if (idx !== -1) (this.items as string[]).splice(idx, 1);
+        }
     }
 }

@@ -44,6 +44,7 @@ export type ToolbarItem =
     | 'undo' | 'redo'
     | 'separator'
     | 'forecolor' | 'hilitecolor'
+    | 'fontname' | 'fontsize' | 'print' | 'removeFormat' | 'indent' | 'outdent'
     | string; // for custom plugin buttons
 
 export interface ToolbarGroup {

@@ -31,6 +31,8 @@
   ],
   "scripts": {
     "dev": "rollup -c rollup.config.js -w",
+    "serve": "sirv . --dev --port 3001 --host",
+    "demo": "npm run serve & npm run dev",
     "build": "rollup -c rollup.config.js",
     "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
     "lint": "eslint src --ext .ts,.tsx",
@@ -44,6 +46,7 @@
     "@types/node": "^20.0.0",
     "rollup": "^3.29.4",
     "rollup-plugin-postcss": "^4.0.2",
+    "sirv-cli": "^3.0.1",
     "tslib": "^2.6.0",
     "typescript": "^5.0.0"
   }

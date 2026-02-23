@@ -107,6 +107,27 @@ export function registerBuiltinCommands(
         isEnabled: () => !editor.isReadOnly(),
     });
 
+    // ── Font ────────────────────────────────────────────────────────
+    commands.register({
+        id: 'fontname',
+        execute: (font: unknown) => document.execCommand('fontName', false, String(font ?? 'Inter')),
+        isActive: () => document.queryCommandValue('fontName') !== '',
+        isEnabled: () => !editor.isReadOnly(),
+    });
+
+    commands.register({
+        id: 'fontsize',
+        execute: (size: unknown) => document.execCommand('fontSize', false, String(size ?? '3')),
+        isEnabled: () => !editor.isReadOnly(),
+    });
+
+    // ── Misc ────────────────────────────────────────────────────────
+    commands.register({
+        id: 'print',
+        execute: () => window.print(),
+        isEnabled: () => true,
+    });
+
     // ── Undo / Redo ─────────────────────────────────────────────────
     commands.register({
         id: 'undo',

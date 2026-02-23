@@ -178,6 +178,10 @@ export class SelectionManager {
         }
     }
 
+    getAnchorNode(): Node | null {
+        return this.getRange()?.startContainer ?? null;
+    }
+
     // ── Path helpers ───────────────────────────────────────────────
     private getNodePath(node: Node): number[] | null {
         const path: number[] = [];

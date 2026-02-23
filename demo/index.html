@@ -7,6 +7,7 @@
   <title>TinyText Editor — Demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../dist/tinytext.css">
   <style>
     *,
     *::before,
@@ -360,7 +361,7 @@
     // In production: import { createEditor, TablePlugin, MarkdownPlugin } from '@aminulidev/tinytext';
     // For this demo, we inline the logic:
 
-    import { TinyTextEditor, TablePlugin, MarkdownPlugin } from './dist/tinytext.esm.js';
+    import { TinyTextEditor, TablePlugin, MarkdownPlugin } from '../dist/tinytext.esm.js';
 
     const editor = new TinyTextEditor({
       selector: '#editor',
