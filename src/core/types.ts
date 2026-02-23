@@ -141,6 +141,7 @@ export interface EditorInstance {
     getCharCount(): number;
     getContainer(): HTMLElement;
     getEditableArea(): HTMLElement;
+    addShortcut(shortcut: string, handler: () => void): void;
 }
 
 // ── Toolbar API ──────────────────────────────

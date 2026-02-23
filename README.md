@@ -4,7 +4,7 @@
   <h3>A modern, lightweight, feature-rich WYSIWYG rich text editor</h3>
   <p>TypeScript · Vanilla JS · ContentEditable · Plugin Architecture · Zero Dependencies</p>
 
-  [![npm version](https://img.shields.io/npm/v/tinytext.svg)](https://www.npmjs.com/package/tinytext)
+  [![npm version](https://img.shields.io/npm/v/@aminulidev/tinytext.svg)](https://www.npmjs.com/package/@aminulidev/tinytext)
   [![License: MIT](https://img.shields.io/badge/License-MIT-indigo.svg)](https://opensource.org/licenses/MIT)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 </div>
@@ -51,7 +51,7 @@
 ## 📦 Installation
 
 ```bash
-npm install tinytext
+npm install @aminulidev/tinytext
 ```
 
 ---
@@ -61,15 +61,15 @@ npm install tinytext
 ### HTML
 
 ```html
-<link rel="stylesheet" href="node_modules/tinytext/dist/tinytext.css">
+<link rel="stylesheet" href="node_modules/@aminulidev/tinytext/dist/tinytext.css">
 <div id="editor"></div>
 ```
 
 ### JavaScript / TypeScript
 
 ```ts
-import { TinyTextEditor } from 'tinytext';
-import 'tinytext/dist/tinytext.css';
+import { TinyTextEditor } from '@aminulidev/tinytext';
+import '@aminulidev/tinytext/dist/tinytext.css';
 
 const editor = new TinyTextEditor({
   selector: '#editor',
@@ -87,7 +87,7 @@ editor.setHTML('<p>Hello, <strong>world</strong>!</p>');
 ### Or use the factory function
 
 ```ts
-import { createEditor } from 'tinytext';
+import { createEditor } from '@aminulidev/tinytext';
 
 const editor = createEditor({ selector: '#editor' });
 ```
@@ -143,7 +143,7 @@ const editor = new TinyTextEditor({
 ## 🛠 Custom Toolbar
 
 ```ts
-import { TinyTextEditor } from 'tinytext';
+import { TinyTextEditor } from '@aminulidev/tinytext';
 
 const editor = new TinyTextEditor({
   selector: '#editor',
@@ -169,7 +169,7 @@ const editor = new TinyTextEditor({
 ## 🧩 Plugin System
 
 ```ts
-import type { PluginDefinition } from 'tinytext';
+import type { PluginDefinition } from '@aminulidev/tinytext';
 
 const MyPlugin: PluginDefinition = {
   name: 'my-plugin',
@@ -250,7 +250,7 @@ Adds right-click context menu to tables:
 Insert/delete rows and columns, Tab navigation, keyboard shortcuts.
 
 ```ts
-import { TinyTextEditor, TablePlugin } from 'tinytext';
+import { TinyTextEditor, TablePlugin } from '@aminulidev/tinytext';
 
 const editor = new TinyTextEditor({
   selector: '#editor',
@@ -264,7 +264,7 @@ const editor = new TinyTextEditor({
 - Import `.md` files
 
 ```ts
-import { TinyTextEditor, MarkdownPlugin } from 'tinytext';
+import { TinyTextEditor, MarkdownPlugin } from '@aminulidev/tinytext';
 
 const editor = new TinyTextEditor({
   selector: '#editor',
@@ -403,4 +403,4 @@ npm publish --access public
 
 ## 📄 License
 
-MIT © Antigravity
+MIT © [aminulidev](https://www.npmjs.com/~aminulidev)

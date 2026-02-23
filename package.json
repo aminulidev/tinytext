@@ -1,8 +1,9 @@
 {
-  "name": "tinytext",
-  "version": "1.0.0",
+  "name": "@aminulidev/tinytext",
+  "version": "1.0.1",
+  "type": "module",
   "description": "A modern, lightweight, feature-rich WYSIWYG rich text editor",
-  "author": "Antigravity",
+  "author": "aminulidev",
   "license": "MIT",
   "keywords": [
     "editor",

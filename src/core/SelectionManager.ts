@@ -183,11 +183,11 @@ export class SelectionManager {
         const path: number[] = [];
         let current: Node | null = node;
         while (current && current !== this.root) {
-            const parent = current.parentNode;
-            if (!parent) return null;
-            const index = Array.from(parent.childNodes).indexOf(current as ChildNode);
+            const parentNode: ParentNode | null = current.parentNode;
+            if (!parentNode) return null;
+            const index = Array.from(parentNode.childNodes).indexOf(current as ChildNode);
             path.unshift(index);
-            current = parent;
+            current = parentNode;
         }
         return path;
     }

@@ -8,7 +8,7 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const banner = `/*!
  * TinyText v${pkg.version}
- * (c) ${new Date().getFullYear()} Antigravity
+ * (c) ${new Date().getFullYear()} aminulidev
  * MIT License
  */`;
 
@@ -46,7 +46,11 @@ export default [
         plugins: [
             resolve({ browser: true }),
             commonjs(),
-            typescript({ tsconfig: './tsconfig.json', declaration: true, declarationDir: 'dist/types' }),
+            typescript({
+                tsconfig: './tsconfig.json',
+                declaration: true,
+                declarationDir: 'dist/types'
+            }),
             postcss({
                 inject: false,
                 extract: false,

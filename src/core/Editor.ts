@@ -75,9 +75,9 @@ export class TinyTextEditor implements EditorInstance {
         this._darkMode = this._resolveDarkMode();
         this._markdownMode = this._options.markdownMode;
 
-        // Init managers
+        // Init managers (SelectionManager initialized with dummy root, updated after DOM)
         this.events = new EventBus();
-        this.selection = new SelectionManager(document.body); // updated after DOM
+        this.selection = new SelectionManager(document.body);
         this.commands = new CommandManager();
         this.history = new HistoryManager();
         this.plugins = new PluginManager();
@@ -93,8 +93,8 @@ export class TinyTextEditor implements EditorInstance {
         this.charCountEl = charCountEl;
         this.wordCountEl = wordCountEl;
 
-        // Re-init SelectionManager with actual root
-        (this.selection as SelectionManager & { root: HTMLElement }).root = this.editable;
+        // Re-init SelectionManager with actual root (prevents accessing private root)
+        this.selection = new SelectionManager(this.editable);
 
         // Register built-in commands
         registerBuiltinCommands(this.commands, this.selection, this.history, this);
